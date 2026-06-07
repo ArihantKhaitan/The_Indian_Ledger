@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useStore } from './store';
 import { Navbar } from './components/Navbar';
@@ -20,6 +21,9 @@ const PAGE_TRANSITION = {
 
 export default function App() {
   const activeView = useStore((s) => s.activeView);
+  const loadData = useStore((s) => s.loadData);
+
+  useEffect(() => { loadData(); }, [loadData]);
 
   return (
     <div

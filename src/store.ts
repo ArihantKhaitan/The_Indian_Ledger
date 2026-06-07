@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { ScamEntry } from './types';
 import { SEED } from './data/seed';
+import { fetchAllEntries } from './lib/supabase';
 
 export type ActiveView = 'overview' | 'map' | 'ledger' | 'about';
 
@@ -15,12 +16,14 @@ interface Filters {
 
 interface AppState {
   data: ScamEntry[];
+  dataLoaded: boolean;
   filters: Filters;
   selectedId: string | null;
   timelineYear: number;
   timelineMode: 'exact' | 'upto';
   activeView: ActiveView;
 
+  loadData: () => Promise<void>;
   setFilter: (key: keyof Filters, value: string) => void;
   setSelectedId: (id: string | null) => void;
   setTimelineYear: (year: number) => void;
@@ -30,8 +33,9 @@ interface AppState {
 
 export const useStore = create<AppState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       data: SEED,
+      dataLoaded: false,
       filters: {
         query: '',
         level: '',
@@ -44,6 +48,12 @@ export const useStore = create<AppState>()(
       timelineMode: 'upto',
       activeView: 'overview',
 
+      loadData: async () => {
+        if (get().dataLoaded) return;
+        const entries = await fetchAllEntries();
+        set({ data: entries, dataLoaded: true });
+      },
+
       setFilter: (key, value) =>
         set((state) => ({ filters: { ...state.filters, [key]: value } })),
       setSelectedId: (id) => set({ selectedId: id }),
@@ -52,7 +62,7 @@ export const useStore = create<AppState>()(
       setActiveView: (view) => set({ activeView: view }),
     }),
     {
-      name: 'ledger_india_scams_v2',
+      name: 'ledger_india_scams_v3',
       partialize: (state) => ({ data: state.data }),
     }
   )

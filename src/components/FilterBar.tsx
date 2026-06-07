@@ -17,10 +17,7 @@ export function FilterBar() {
   return (
     <div
       className="flex flex-wrap gap-2 items-center py-4 sticky top-[60px] z-20"
-      style={{
-        background: 'linear-gradient(180deg, #14110f 85%, transparent)',
-        backdropFilter: 'blur(6px)',
-      }}
+      style={{ background: '#14110f' }}
     >
       {/* Search */}
       <div className="relative flex-1 min-w-[200px]">

@@ -5,14 +5,11 @@ import { useStore } from '../store';
 import { partyColor } from '../lib/colors';
 import { firstYear } from '../lib/utils';
 
-// Direct GeoJSON — no topojson processing needed
 const GEO_URL =
   'https://raw.githubusercontent.com/geohacker/india/master/state/india_state.geojson';
-// Fallback if above fails (topojson, requires processing)
 const GEO_FALLBACK =
   'https://raw.githubusercontent.com/Subhash9325/GeoJson-Data-of-Indian-States/master/Indian_States';
 
-// Normalise various GeoJSON state name spellings → our stateCode
 const NAME_TO_CODE: Record<string, string> = {
   'Andhra Pradesh': 'AP',
   'Arunachal Pradesh': 'AR',
@@ -56,11 +53,13 @@ const NAME_TO_CODE: Record<string, string> = {
   'Chandigarh': 'CH',
 };
 
-// Extract state name from any GeoJSON property schema
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function getStateName(props: Record<string, any>): string {
   return props.ST_NM || props.NAME_1 || props.State || props.state || props.name || '';
 }
+
+// Small/island UTs that need larger click targets
+const SMALL_UTS = new Set(['LD', 'AN', 'DN', 'PY', 'CH']);
 
 interface TooltipState {
   x: number;
@@ -82,7 +81,6 @@ export function MapView() {
 
   const { data, selectedId, setSelectedId, timelineYear, timelineMode } = useStore();
 
-  // Entries visible on map under current timeline
   const mappedEntries = useMemo(() => {
     return data.filter((d) => {
       if (!d.lat || !d.lng) return false;
@@ -93,7 +91,6 @@ export function MapView() {
     });
   }, [data, timelineYear, timelineMode]);
 
-  // Scam count per state code (for subtle choropleth)
   const scamsByState = useMemo(() => {
     const counts: Record<string, number> = {};
     mappedEntries.forEach((e) => {
@@ -104,10 +101,8 @@ export function MapView() {
     return counts;
   }, [mappedEntries]);
 
-  // Load GeoJSON — try primary URL, fall back to secondary
   useEffect(() => {
     let cancelled = false;
-
     async function load() {
       const urls = [GEO_URL, GEO_FALLBACK];
       for (const url of urls) {
@@ -117,31 +112,24 @@ export function MapView() {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const json: any = await res.json();
           if (cancelled) return;
-          // Support both FeatureCollection and array of features
           const feats = json.features ?? (Array.isArray(json) ? json : null);
           if (feats && feats.length > 0) {
             setFeatures(feats);
             return;
           }
-        } catch {
-          // try next url
-        }
+        } catch { /* try next */ }
       }
       if (!cancelled) setGeoError(true);
     }
-
     load();
     return () => { cancelled = true; };
   }, []);
 
-  // Track container dimensions
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
     const measure = () => {
-      const w = el.clientWidth || 800;
-      const h = el.clientHeight || 600;
-      setDims({ width: w, height: h });
+      setDims({ width: el.clientWidth || 800, height: el.clientHeight || 600 });
     };
     const ro = new ResizeObserver(measure);
     ro.observe(el);
@@ -149,8 +137,7 @@ export function MapView() {
     return () => ro.disconnect();
   }, []);
 
-  // D3 projection — matches Rajneeti: center [82.5, 22], scale ~920 for 620px width
-  // Translate pushed slightly below geometric center so J&K stays in frame
+  // Projection matching Rajneeti exactly
   const { projection, pathFn } = useMemo(() => {
     const scale = (dims.height / 700) * 920;
     const proj = d3
@@ -161,7 +148,6 @@ export function MapView() {
     return { projection: proj, pathFn: d3.geoPath().projection(proj) };
   }, [dims]);
 
-  // lat/lng → SVG coords
   const project = useCallback(
     (lng: number, lat: number): [number, number] | null => {
       const pt = projection([lng, lat]);
@@ -170,13 +156,31 @@ export function MapView() {
     [projection]
   );
 
-  function getStateFill(name: string): string {
-    const code = NAME_TO_CODE[name];
+  // Precompute centroids and paths for all features
+  const featureData = useMemo(() => {
+    return features.map((feat) => {
+      const name = getStateName(feat.properties || {});
+      const code = NAME_TO_CODE[name];
+      let pathD = '';
+      let centroid: [number, number] | null = null;
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        pathD = pathFn(feat as any) || '';
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const c = pathFn.centroid(feat as any);
+        if (c && !isNaN(c[0]) && !isNaN(c[1])) centroid = c as [number, number];
+      } catch { /* skip */ }
+      return { feat, name, code, pathD, centroid };
+    });
+  }, [features, pathFn]);
+
+  function getStateFill(code: string | undefined, name: string): string {
     if (!code) return '#1d1915';
     const count = scamsByState[code] || 0;
     if (count === 0) return '#1d1915';
-    const t = Math.min(count / 3, 1) * 0.65;
-    return d3.interpolateRgb('#1d1915', '#3a2820')(t);
+    const t = Math.min(count / 4, 1);
+    // Subtle dark-red heat: more scams = more visible
+    return d3.interpolateRgb('#232018', '#4a1f1a')(t);
   }
 
   function handlePinEnter(e: React.MouseEvent, id: string) {
@@ -194,6 +198,15 @@ export function MapView() {
     });
   }
 
+  // Show label only if centroid is inside SVG bounds and state is big enough
+  function shouldShowLabel(code: string | undefined, pathD: string): boolean {
+    if (!code) return false;
+    // Always show mainland states; skip tiny ones
+    if (SMALL_UTS.has(code)) return false;
+    if (!pathD) return false;
+    return true;
+  }
+
   return (
     <div
       ref={containerRef}
@@ -206,27 +219,46 @@ export function MapView() {
         height={dims.height}
         style={{ display: 'block' }}
       >
-        {/* State boundary paths */}
-        {features.map((feat, i) => {
-          const name = getStateName(feat.properties || {});
-          const code = NAME_TO_CODE[name];
-          const hasScams = !!code && scamsByState[code] > 0;
-          let pathD = '';
-          try {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            pathD = pathFn(feat as any) || '';
-          } catch {
-            /* skip malformed feature */
-          }
+        {/* State fills + borders */}
+        {featureData.map(({ name, code, pathD }, i) => {
+          const hasScams = !!code && (scamsByState[code] || 0) > 0;
           return (
             <path
               key={i}
               d={pathD}
-              fill={getStateFill(name)}
-              stroke="rgba(236,227,212,0.14)"
-              strokeWidth={0.6}
-              style={{ transition: 'fill 0.4s ease', filter: hasScams ? 'brightness(1.2)' : undefined }}
+              fill={getStateFill(code, name)}
+              stroke="rgba(236,227,212,0.18)"
+              strokeWidth={0.7}
+              style={{
+                transition: 'fill 0.4s ease',
+                filter: hasScams ? 'brightness(1.3)' : undefined,
+              }}
             />
+          );
+        })}
+
+        {/* State abbreviation labels — matching Rajneeti style */}
+        {featureData.map(({ code, centroid, pathD }, i) => {
+          if (!centroid || !shouldShowLabel(code, pathD)) return null;
+          const [cx, cy] = centroid;
+          // Skip if out of bounds
+          if (cx < 10 || cx > dims.width - 10 || cy < 10 || cy > dims.height - 10) return null;
+          const count = code ? (scamsByState[code] || 0) : 0;
+          return (
+            <text
+              key={`lbl-${i}`}
+              x={cx}
+              y={cy}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fontSize={count > 0 ? 9 : 8}
+              fontFamily="'JetBrains Mono', monospace"
+              fontWeight={count > 0 ? '600' : '400'}
+              fill={count > 0 ? 'rgba(236,227,212,0.75)' : 'rgba(236,227,212,0.28)'}
+              style={{ pointerEvents: 'none', letterSpacing: '0.5px' }}
+            >
+              {code}
+            </text>
           );
         })}
 
@@ -255,16 +287,18 @@ export function MapView() {
                 <motion.circle
                   cx={cx} cy={cy} r={r}
                   fill={color}
-                  fillOpacity={isSelected ? 0.95 : 0.82}
-                  stroke={isSelected ? '#fff' : 'rgba(0,0,0,0.35)'}
-                  strokeWidth={isSelected ? 1.5 : 0.7}
+                  fillOpacity={isSelected ? 0.95 : 0.85}
+                  stroke={isSelected ? '#fff' : 'rgba(0,0,0,0.4)'}
+                  strokeWidth={isSelected ? 1.5 : 0.8}
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ scale: 0, opacity: 0 }}
                   transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                   style={{
                     cursor: 'pointer',
-                    filter: isSelected || isHovered ? `drop-shadow(0 0 5px ${color})` : undefined,
+                    filter: isSelected || isHovered
+                      ? `drop-shadow(0 0 6px ${color})`
+                      : `drop-shadow(0 1px 2px rgba(0,0,0,0.6))`,
                     transformOrigin: `${cx}px ${cy}px`,
                   }}
                   onClick={() => setSelectedId(isSelected ? null : entry.id)}
@@ -343,12 +377,11 @@ export function MapView() {
         ))}
       </div>
 
-      {/* State count */}
+      {/* Case count */}
       <div className="absolute top-3 right-3 font-mono text-[9px] tracking-[1px] text-faint uppercase">
         {mappedEntries.length} state-level {mappedEntries.length !== 1 ? 'cases' : 'case'} shown
       </div>
 
-      {/* GeoJSON load error fallback */}
       {geoError && features.length === 0 && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <p className="font-mono text-[11px] text-faint text-center">
@@ -357,7 +390,6 @@ export function MapView() {
         </div>
       )}
 
-      {/* Loading state */}
       {!geoError && features.length === 0 && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <p className="font-mono text-[11px] text-faint animate-pulse">Loading map…</p>

@@ -247,13 +247,13 @@ export function OverviewView() {
         className="flex flex-wrap gap-4 mt-10 pt-6 border-t border-line"
       >
         <button
-          onClick={() => setActiveView('map')}
+          onClick={() => { window.scrollTo({ top: 0 }); setActiveView('map'); }}
           className="font-mono text-[11px] tracking-[2px] uppercase px-5 py-2.5 rounded border border-line2 text-muted hover:border-accent hover:text-ink transition-colors"
         >
           → Open map view
         </button>
         <button
-          onClick={() => setActiveView('about')}
+          onClick={() => { window.scrollTo({ top: 0 }); setActiveView('about'); }}
           className="font-mono text-[11px] tracking-[2px] uppercase px-5 py-2.5 rounded bg-accent text-white hover:bg-[#a82e22] transition-colors"
         >
           → About this archive
