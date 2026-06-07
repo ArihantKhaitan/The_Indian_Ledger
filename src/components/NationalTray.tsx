@@ -18,7 +18,7 @@ export function NationalTray() {
   }, [data, timelineYear, timelineMode]);
 
   return (
-    <div className="flex flex-col h-full bg-panel border-l border-line overflow-hidden" style={{ minWidth: '200px', maxWidth: '220px' }}>
+    <div className="flex flex-col h-full overflow-hidden" style={{ background: 'rgba(29,25,21,0.92)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', borderLeft: '1px solid rgba(236,227,212,0.08)' }}>
       <div className="px-3 py-2.5 border-b border-line">
         <div className="font-mono text-[9px] tracking-[1.5px] uppercase text-faint">National cases</div>
         <div className="font-mono text-[11px] text-muted mt-0.5">{nationalEntries.length} entries</div>

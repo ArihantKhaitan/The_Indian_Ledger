@@ -46,21 +46,27 @@ export default function App() {
           )}
 
           {activeView === 'map' && (
-            <motion.div key="map" {...PAGE_TRANSITION} className="flex flex-col">
-              {/* Map + tray — full viewport height minus navbar */}
-              <div
-                className="flex"
-                style={{ height: 'calc(100vh - 60px - 80px)' }}
-              >
-                {/* Map takes all remaining space */}
-                <div className="flex-1 overflow-hidden">
-                  <MapView />
-                </div>
-                {/* National tray */}
+            <motion.div
+              key="map"
+              {...PAGE_TRANSITION}
+              className="relative overflow-hidden"
+              style={{ height: 'calc(100vh - 60px)' }}
+            >
+              {/* Map fills the entire space */}
+              <MapView />
+
+              {/* National cases tray — right side overlay */}
+              <div className="absolute top-0 right-0 bottom-0 flex flex-col" style={{ width: '200px' }}>
                 <NationalTray />
               </div>
-              {/* Timeline slider at the bottom */}
-              <TimelineSlider />
+
+              {/* Timeline slider — bottom overlay, left of the tray */}
+              <div
+                className="absolute bottom-0 left-0"
+                style={{ right: '200px' }}
+              >
+                <TimelineSlider />
+              </div>
             </motion.div>
           )}
 

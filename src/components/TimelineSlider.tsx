@@ -8,7 +8,7 @@ export function TimelineSlider() {
   const { timelineYear, timelineMode, setTimelineYear, setTimelineMode } = useStore();
 
   return (
-    <div className="bg-panel border-t border-line px-4 py-3">
+    <div className="px-4 py-3" style={{ background: 'rgba(29,25,21,0.92)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', borderTop: '1px solid rgba(236,227,212,0.08)' }}>
       <div className="flex items-center justify-between mb-3">
         <div className="font-mono text-[10px] tracking-[1.5px] uppercase text-faint">Timeline filter</div>
         <div className="flex items-center gap-1.5">
