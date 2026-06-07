@@ -149,14 +149,15 @@ export function MapView() {
     return () => ro.disconnect();
   }, []);
 
-  // D3 projection — recomputed only when dims change
+  // D3 projection — matches Rajneeti: center [82.5, 22], scale ~920 for 620px width
+  // Translate pushed slightly below geometric center so J&K stays in frame
   const { projection, pathFn } = useMemo(() => {
-    const scale = (Math.min(dims.width, dims.height) / 500) * 900;
+    const scale = (dims.height / 700) * 920;
     const proj = d3
       .geoMercator()
-      .center([82, 22])
+      .center([82.5, 22])
       .scale(scale)
-      .translate([dims.width / 2, dims.height / 2]);
+      .translate([dims.width / 2, dims.height * 0.54]);
     return { projection: proj, pathFn: d3.geoPath().projection(proj) };
   }, [dims]);
 

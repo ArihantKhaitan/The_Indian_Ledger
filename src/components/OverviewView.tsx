@@ -157,7 +157,7 @@ export function OverviewView() {
             onClick={() => setActiveView('ledger')}
             className="font-mono text-[10px] tracking-[1.5px] uppercase text-accent hover:text-accent/80 transition-colors"
           >
-            View all {data.length} entries →
+            Browse full ledger ({data.length} entries) →
           </button>
         </div>
 
@@ -253,10 +253,10 @@ export function OverviewView() {
           → Open map view
         </button>
         <button
-          onClick={() => setActiveView('ledger')}
+          onClick={() => setActiveView('about')}
           className="font-mono text-[11px] tracking-[2px] uppercase px-5 py-2.5 rounded bg-accent text-white hover:bg-[#a82e22] transition-colors"
         >
-          → Browse full ledger
+          → About this archive
         </button>
       </motion.div>
     </div>
