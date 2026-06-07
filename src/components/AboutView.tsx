@@ -137,18 +137,6 @@ export function AboutView() {
         </ul>
       </div>
 
-      {/* Footer note */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.9 }}
-        className="mt-12 pt-6 border-t border-line font-mono text-[10px] text-faint tracking-[0.5px] leading-relaxed max-w-3xl"
-      >
-        THE LEDGER · a personal research database · data is manually curated &amp; source-verified
-        where possible · stored locally in your browser · export regularly to keep a backup ·
-        cross-party &amp; factually neutral · not affiliated with any political party, government
-        body, or media organization
-      </motion.div>
     </div>
   );
 }

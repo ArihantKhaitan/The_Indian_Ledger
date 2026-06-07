@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 import { useStore, ActiveView } from '../store';
-import { exportJSON, exportCSV } from '../lib/utils';
 
 const NAV_ITEMS: { id: ActiveView; label: string }[] = [
   { id: 'overview', label: 'Overview' },
@@ -12,7 +11,7 @@ const NAV_ITEMS: { id: ActiveView; label: string }[] = [
 ];
 
 export function Navbar() {
-  const { activeView, setActiveView, data } = useStore();
+  const { activeView, setActiveView } = useStore();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -88,22 +87,6 @@ export function Navbar() {
               );
             })}
 
-            <div className="w-px h-5 bg-line mx-2" />
-
-            <button
-              onClick={() => exportJSON(data)}
-              className="font-mono text-[10px] tracking-[1px] uppercase text-faint hover:text-ink transition-colors px-2 py-1.5"
-              title="Export JSON"
-            >
-              ⤓ JSON
-            </button>
-            <button
-              onClick={() => exportCSV(data)}
-              className="font-mono text-[10px] tracking-[1px] uppercase text-faint hover:text-ink transition-colors px-2 py-1.5"
-              title="Export CSV"
-            >
-              ⤓ CSV
-            </button>
           </div>
 
           {/* Mobile hamburger */}
@@ -147,20 +130,6 @@ export function Navbar() {
                   {label}
                 </button>
               ))}
-              <div className="flex gap-4 pt-2 pl-3">
-                <button
-                  onClick={() => { exportJSON(data); setMobileOpen(false); }}
-                  className="font-mono text-[10px] tracking-[1px] uppercase text-faint hover:text-ink transition-colors"
-                >
-                  ⤓ JSON
-                </button>
-                <button
-                  onClick={() => { exportCSV(data); setMobileOpen(false); }}
-                  className="font-mono text-[10px] tracking-[1px] uppercase text-faint hover:text-ink transition-colors"
-                >
-                  ⤓ CSV
-                </button>
-              </div>
             </div>
           </motion.div>
         )}
