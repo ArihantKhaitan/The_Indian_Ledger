@@ -16,12 +16,7 @@ export function FilterBar() {
 
   return (
     <div
-      className="flex flex-wrap gap-2 items-center py-4 sticky top-[60px] z-20"
-      style={{
-        background: 'rgba(20,17,15,0.88)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-      }}
+      className="flex flex-wrap gap-2 items-center py-4 sticky top-[60px] z-20 bg-bg"
     >
       {/* Search */}
       <div className="relative flex-1 min-w-[200px]">

@@ -8,63 +8,57 @@ export function TimelineSlider() {
   const { timelineYear, timelineMode, setTimelineYear, setTimelineMode } = useStore();
 
   return (
-    <div className="px-4 py-3" style={{ background: 'rgba(29,25,21,0.92)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', borderTop: '1px solid rgba(236,227,212,0.08)' }}>
-      <div className="flex items-center justify-between mb-3">
-        <div className="font-mono text-[10px] tracking-[1.5px] uppercase text-faint">Timeline filter</div>
-        <div className="flex items-center gap-1.5">
-          <button
-            onClick={() => setTimelineMode('exact')}
-            className="font-mono text-[10px] tracking-[0.5px] uppercase px-2.5 py-1 rounded-sm transition-colors"
-            style={{
-              background: timelineMode === 'exact' ? 'rgba(192,57,43,0.2)' : 'transparent',
-              border: `1px solid ${timelineMode === 'exact' ? '#c0392b' : 'rgba(236,227,212,0.18)'}`,
-              color: timelineMode === 'exact' ? '#c0392b' : '#6a6052',
-            }}
-          >
-            Exact year
-          </button>
-          <button
-            onClick={() => setTimelineMode('upto')}
-            className="font-mono text-[10px] tracking-[0.5px] uppercase px-2.5 py-1 rounded-sm transition-colors"
-            style={{
-              background: timelineMode === 'upto' ? 'rgba(192,57,43,0.2)' : 'transparent',
-              border: `1px solid ${timelineMode === 'upto' ? '#c0392b' : 'rgba(236,227,212,0.18)'}`,
-              color: timelineMode === 'upto' ? '#c0392b' : '#6a6052',
-            }}
-          >
-            Up to year
-          </button>
+    <div
+      className="flex flex-col justify-center px-5 shrink-0"
+      style={{ width: '320px', borderRight: '1px solid rgba(236,227,212,0.07)' }}
+    >
+      {/* Label + mode toggle */}
+      <div className="flex items-center justify-between mb-2.5">
+        <span className="font-mono text-[9px] tracking-[1.5px] uppercase text-faint">Timeline</span>
+        <div className="flex items-center gap-1">
+          {(['exact', 'upto'] as const).map((mode) => (
+            <button
+              key={mode}
+              onClick={() => setTimelineMode(mode)}
+              className="font-mono text-[9px] tracking-[0.5px] uppercase px-2 py-0.5 rounded-sm transition-colors"
+              style={{
+                background: timelineMode === mode ? 'rgba(192,57,43,0.18)' : 'transparent',
+                border: `1px solid ${timelineMode === mode ? '#c0392b' : 'rgba(236,227,212,0.15)'}`,
+                color: timelineMode === mode ? '#c0392b' : '#6a6052',
+              }}
+            >
+              {mode === 'exact' ? 'Exact' : 'Up to'}
+            </button>
+          ))}
         </div>
       </div>
 
-      <div className="flex items-center gap-4">
-        <span className="font-mono text-[10px] text-faint w-8">{MIN_YEAR}</span>
+      {/* Slider row */}
+      <div className="flex items-center gap-3">
+        <span className="font-mono text-[9px] text-faint w-7 shrink-0">{MIN_YEAR}</span>
 
         <Slider.Root
-          className="relative flex items-center flex-1 h-5 cursor-pointer"
+          className="relative flex items-center flex-1 h-4 cursor-pointer"
           min={MIN_YEAR}
           max={MAX_YEAR}
           step={1}
           value={[timelineYear]}
           onValueChange={([v]) => setTimelineYear(v)}
         >
-          <Slider.Track className="relative flex-1 h-px" style={{ background: 'rgba(236,227,212,0.18)' }}>
-            <Slider.Range
-              className="absolute h-full"
-              style={{ background: 'rgba(192,57,43,0.5)' }}
-            />
+          <Slider.Track className="relative flex-1 h-px" style={{ background: 'rgba(236,227,212,0.15)' }}>
+            <Slider.Range className="absolute h-full" style={{ background: 'rgba(192,57,43,0.45)' }} />
           </Slider.Track>
           <Slider.Thumb
-            className="block w-4 h-4 rounded-full border-2 cursor-grab active:cursor-grabbing focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 focus:ring-offset-panel"
+            className="block w-3 h-3 rounded-full border-2 cursor-grab active:cursor-grabbing focus:outline-none"
             style={{ background: '#c0392b', borderColor: '#e05040' }}
           />
         </Slider.Root>
 
-        <span className="font-mono text-[10px] text-faint w-8 text-right">{MAX_YEAR}</span>
+        <span className="font-mono text-[9px] text-faint w-7 text-right shrink-0">{MAX_YEAR}</span>
 
         <div
-          className="font-display font-black text-2xl leading-none min-w-[56px] text-right"
-          style={{ color: '#c0392b', letterSpacing: '-1px' }}
+          className="font-display font-black text-xl leading-none shrink-0"
+          style={{ color: '#c0392b', letterSpacing: '-0.5px', minWidth: '44px', textAlign: 'right' }}
         >
           {timelineYear}
         </div>

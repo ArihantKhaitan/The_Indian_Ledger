@@ -49,31 +49,36 @@ export default function App() {
             <motion.div
               key="map"
               {...PAGE_TRANSITION}
-              className="relative overflow-hidden"
+              className="flex flex-col"
               style={{ height: 'calc(100vh - 60px)' }}
             >
-              {/* Map fills the entire space */}
-              <MapView />
-
-              {/* National cases tray — right side overlay */}
-              <div className="absolute top-0 right-0 bottom-0 flex flex-col" style={{ width: '200px' }}>
-                <NationalTray />
+              {/* Map — fills all available space above the bottom bar */}
+              <div className="flex-1 min-h-0 overflow-hidden">
+                <MapView />
               </div>
 
-              {/* Timeline slider — bottom overlay, left of the tray */}
+              {/* Bottom bar: compact timeline + horizontal national cases */}
               <div
-                className="absolute bottom-0 left-0"
-                style={{ right: '200px' }}
+                className="flex shrink-0"
+                style={{
+                  height: '96px',
+                  borderTop: '1px solid rgba(236,227,212,0.07)',
+                  background: '#14110f',
+                }}
               >
                 <TimelineSlider />
+                <NationalTray />
               </div>
             </motion.div>
           )}
 
           {activeView === 'ledger' && (
-            <motion.div key="ledger" {...PAGE_TRANSITION} className="max-w-screen-xl mx-auto px-5 pb-20">
-              <div className="pt-4">
+            <motion.div key="ledger" {...PAGE_TRANSITION} className="pb-20">
+              {/* FilterBar spans full viewport width so no box edge is visible */}
+              <div className="px-5 pt-4">
                 <FilterBar />
+              </div>
+              <div className="max-w-screen-xl mx-auto px-5">
                 <LedgerList />
               </div>
             </motion.div>
