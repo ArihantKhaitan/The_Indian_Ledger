@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Ledger — India Scams & Controversies Archive (1996–Present)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#14110f; --panel:#1d1915; --panel2:#241f1a;
+    --ink:#ece3d4; --muted:#9a8f7d; --faint:#6a6052;
+    --accent:#c0392b; --accent2:#d4642f;
+    --line:rgba(236,227,212,0.10); --line2:rgba(236,227,212,0.18);
+    --conv:#c0392b; --acq:#5aa17a; --trial:#d4a23a; --closed:#7d7468; --policy:#4a86b0;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);font-family:"Spectral",Georgia,serif;line-height:1.5;
+    background-image:radial-gradient(circle at 20% -10%,rgba(192,57,43,0.08),transparent 45%),radial-gradient(circle at 90% 0%,rgba(212,100,47,0.06),transparent 40%);
+    background-attachment:fixed;min-height:100vh}
+  ::selection{background:var(--accent);color:#fff}
+  .wrap{max-width:1280px;margin:0 auto;padding:0 22px}
+
+  /* Header */
+  header.masthead{border-bottom:2px solid var(--line2);padding:30px 0 18px;margin-bottom:0;position:relative}
+  .kicker{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:10px}
+  .kicker::before,.kicker::after{content:"";height:1px;flex:0 0 30px;background:var(--accent);opacity:.6}
+  .kicker::after{flex:1}
+  h1{font-family:"Fraunces",serif;font-weight:900;font-size:clamp(34px,6vw,62px);line-height:0.95;letter-spacing:-1.5px;margin:10px 0 6px}
+  h1 .sub{display:block;font-size:clamp(13px,2vw,17px);font-weight:400;font-style:italic;color:var(--muted);letter-spacing:0;margin-top:8px;font-family:"Spectral",serif}
+  .disclaimer{margin-top:14px;font-size:13px;color:var(--muted);max-width:760px;border-left:3px solid var(--accent);padding:6px 0 6px 14px;background:rgba(192,57,43,0.04)}
+  .disclaimer b{color:var(--ink)}
+
+  /* Stats */
+  .stats{display:flex;flex-wrap:wrap;gap:14px;padding:22px 0;border-bottom:1px solid var(--line)}
+  .stat{flex:1;min-width:130px;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:14px 16px}
+  .stat .n{font-family:"Fraunces",serif;font-weight:900;font-size:30px;line-height:1;color:var(--ink)}
+  .stat .n.red{color:var(--accent)}
+  .stat .l{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--faint);margin-top:6px}
+
+  /* Controls */
+  .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:18px 0;position:sticky;top:0;z-index:20;background:linear-gradient(180deg,var(--bg) 80%,transparent);backdrop-filter:blur(2px)}
+  .search{flex:1;min-width:200px;position:relative}
+  .search input{width:100%;background:var(--panel);border:1px solid var(--line2);color:var(--ink);font-family:"Spectral",serif;font-size:15px;padding:11px 14px 11px 38px;border-radius:4px;outline:none}
+  .search input:focus{border-color:var(--accent)}
+  .search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);opacity:.5}
+  select,.btn{background:var(--panel);border:1px solid var(--line2);color:var(--ink);font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.5px;padding:10px 12px;border-radius:4px;cursor:pointer;outline:none}
+  select:focus{border-color:var(--accent)}
+  .btn:hover{border-color:var(--accent);color:#fff}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+  .btn.primary:hover{background:#a82e22}
+  .btn.ghost{background:transparent}
+
+  /* List */
+  .meta-row{display:flex;justify-content:space-between;align-items:baseline;padding:14px 0 8px;color:var(--faint);font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase}
+  .cards{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--line)}
+  .card{border-bottom:1px solid var(--line);padding:18px 0;display:grid;grid-template-columns:64px 1fr auto;gap:18px;align-items:start;cursor:pointer;transition:background .15s}
+  .card:hover{background:rgba(236,227,212,0.025)}
+  .yr{font-family:"Fraunces",serif;font-weight:900;font-size:20px;color:var(--accent);line-height:1.1;padding-top:2px}
+  .yr small{display:block;font-family:"JetBrains Mono",monospace;font-size:9px;color:var(--faint);font-weight:400;letter-spacing:1px}
+  .cmain h3{font-family:"Fraunces",serif;font-weight:600;font-size:21px;letter-spacing:-.3px;margin-bottom:5px}
+  .tags{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:7px}
+  .tag{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.5px;padding:3px 8px;border-radius:3px;text-transform:uppercase;border:1px solid var(--line2)}
+  .tag.level{color:var(--ink);background:var(--panel2)}
+  .tag.party{color:#0c0a08;font-weight:600}
+  .desc{color:var(--muted);font-size:14px;max-width:680px}
+  .detail{display:none;margin-top:14px;padding:14px 16px;background:var(--panel);border-radius:4px;border:1px solid var(--line)}
+  .card.open .detail{display:block}
+  .detail .row{display:flex;gap:8px;font-size:13.5px;margin-bottom:7px;align-items:baseline}
+  .detail .row .k{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--faint);flex:0 0 110px;padding-top:2px}
+  .detail .row .v{color:var(--ink);flex:1}
+  .detail .v a{color:var(--accent2);word-break:break-all}
+  .cright{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:8px;min-width:140px}
+  .amt{font-family:"JetBrains Mono",monospace;font-weight:600;font-size:16px;color:var(--ink);white-space:nowrap}
+  .amt .q{display:block;font-size:9px;color:var(--faint);font-weight:400;letter-spacing:.5px;margin-top:2px;max-width:150px;white-space:normal;text-align:right}
+  .status{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.5px;padding:4px 9px;border-radius:3px;text-transform:uppercase;font-weight:600;white-space:nowrap}
+  .editbtns{display:flex;gap:6px;margin-top:2px}
+  .editbtns button{background:none;border:1px solid var(--line);color:var(--faint);font-size:11px;padding:3px 8px;border-radius:3px;cursor:pointer;font-family:"JetBrains Mono",monospace}
+  .editbtns button:hover{color:var(--accent);border-color:var(--accent)}
+  .empty{padding:60px 20px;text-align:center;color:var(--muted);font-style:italic}
+
+  /* Modal */
+  .overlay{position:fixed;inset:0;background:rgba(8,6,5,0.78);backdrop-filter:blur(4px);z-index:100;display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto}
+  .overlay.show{display:flex}
+  .modal{background:var(--panel);border:1px solid var(--line2);border-radius:6px;max-width:640px;width:100%;padding:28px;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+  .modal h2{font-family:"Fraunces",serif;font-weight:900;font-size:26px;margin-bottom:4px}
+  .modal .mh{color:var(--muted);font-size:13px;margin-bottom:20px}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--faint);margin-bottom:5px}
+  .field input,.field textarea,.field select{width:100%;background:var(--bg);border:1px solid var(--line2);color:var(--ink);font-family:"Spectral",serif;font-size:14px;padding:9px 11px;border-radius:4px;outline:none}
+  .field textarea{min-height:70px;resize:vertical}
+  .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
+  footer{padding:40px 0 60px;color:var(--faint);font-size:12px;text-align:center;border-top:1px solid var(--line);margin-top:30px;font-family:"JetBrains Mono",monospace;letter-spacing:.5px;line-height:1.8}
+  @media(max-width:680px){
+    .card{grid-template-columns:48px 1fr;gap:12px}
+    .cright{grid-column:1/-1;flex-direction:row;align-items:center;justify-content:space-between;text-align:left}
+    .amt .q{text-align:left}
+    .grid2{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<header class="masthead"><div class="wrap">
+  <div class="kicker">Public Record · Cross-Party · 1996 → Present</div>
+  <h1>The Ledger
+    <span class="sub">An archive of alleged scams &amp; major political controversies across Indian governments — national &amp; state. Figures are <em>alleged / estimated</em>; legal status is tracked separately.</span>
+  </h1>
+  <div class="disclaimer">
+    <b>Read this first.</b> Inclusion here is <b>not</b> an assertion of guilt. Most "amounts" are <b>contested estimates</b> (e.g. CAG presumptive-loss figures), not proven sums. Always check the <b>Status</b> field — many high-profile cases ended in <em>acquittal</em> or remain <em>pending</em>. Treat every entry as a research lead: <b>verify the source before citing anything formally.</b>
+  </div>
+</div></header>
+
+<div class="wrap">
+  <div class="stats" id="stats"></div>
+
+  <div class="controls">
+    <div class="search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="q" placeholder="Search name, person, description…" oninput="render()">
+    </div>
+    <select id="fLevel" onchange="render()"><option value="">All levels</option></select>
+    <select id="fParty" onchange="render()"><option value="">All parties</option></select>
+    <select id="fStatus" onchange="render()"><option value="">All statuses</option></select>
+    <select id="fSort" onchange="render()">
+      <option value="year-desc">Newest first</option>
+      <option value="year-asc">Oldest first</option>
+      <option value="amt-desc">Largest amount</option>
+      <option value="amt-asc">Smallest amount</option>
+      <option value="az">A → Z</option>
+    </select>
+    <button class="btn primary" onclick="openModal()">+ Add entry</button>
+    <button class="btn ghost" onclick="exportJSON()">⤓ JSON</button>
+    <button class="btn ghost" onclick="exportCSV()">⤓ CSV</button>
+    <button class="btn ghost" onclick="document.getElementById('imp').click()">⤒ Import</button>
+    <input type="file" id="imp" accept=".json" style="display:none" onchange="importJSON(event)">
+    <button class="btn ghost" onclick="resetSeed()" title="Restore the built-in starter dataset">↺ Reseed</button>
+  </div>
+
+  <div class="meta-row"><span id="count">—</span><span>Click any row to expand · amounts in ₹ crore unless noted</span></div>
+  <div class="cards" id="list"></div>
+</div>
+
+<footer><div class="wrap">
+  THE LEDGER · a personal research database · data is user-maintained &amp; must be source-verified<br>
+  stored locally to your session · export regularly to keep a backup
+</div></footer>
+
+<!-- Modal -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h2 id="mTitle">Add entry</h2>
+    <div class="mh">Keep amounts honest — label estimates as estimates in the note field.</div>
+    <input type="hidden" id="mId">
+    <div class="field"><label>Name / Title *</label><input id="mName" placeholder="e.g. 2G spectrum allocation"></div>
+    <div class="grid2">
+      <div class="field"><label>Level *</label><input id="mLevel" list="levelList" placeholder="National / state name"></div>
+      <div class="field"><label>Year (or range) *</label><input id="mYear" placeholder="e.g. 2010 or 2010–2012"></div>
+    </div>
+    <datalist id="levelList"></datalist>
+    <div class="grid2">
+      <div class="field"><label>Ruling party / coalition then</label><input id="mParty" placeholder="e.g. Congress (UPA)"></div>
+      <div class="field"><label>Status</label>
+        <select id="mStatus">
+          <option>Alleged / surfaced</option><option>Under investigation</option><option>Chargesheeted</option>
+          <option>Under trial</option><option>Convicted</option><option>Acquitted / no charges</option>
+          <option>Closed</option><option>Policy / scheme struck down</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Amount (₹ crore, number only)</label><input id="mAmt" type="number" placeholder="e.g. 176000"></div>
+      <div class="field"><label>Amount note (qualifier)</label><input id="mAmtNote" placeholder="e.g. CAG presumptive loss"></div>
+    </div>
+    <div class="field"><label>Key people / entities</label><input id="mPeople" placeholder="e.g. A. Raja, Kanimozhi"></div>
+    <div class="field"><label>Description (neutral, brief)</label><textarea id="mDesc"></textarea></div>
+    <div class="field"><label>Source(s) — URLs or references</label><textarea id="mSrc" placeholder="Paste verified links here"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn primary" onclick="saveEntry()">Save entry</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const KEY="ledger_india_scams_v1";
+let DATA=[];
+
+const PARTY_COLORS={
+  "Congress":"#d98a7a","Congress (UPA)":"#d98a7a","BJP":"#e8a23a","BJP (NDA)":"#e8a23a",
+  "TMC":"#7ec4a8","DMK":"#c97ad9","AIADMK":"#9ad97a","RJD":"#7aa8d9","BSP":"#b9a8e8",
+  "AAP":"#7ad9d2","NCP":"#d9b87a","JMM":"#a8d97a","UDF / Congress":"#d98a7a","Multiple / various":"#b0a48f","Corporate":"#a89a85"
+};
+function partyColor(p){return PARTY_COLORS[p]||"#b0a48f";}
+function statusColor(s){
+  if(/convict/i.test(s))return"var(--conv)";
+  if(/acquit|no charge/i.test(s))return"var(--acq)";
+  if(/trial|investig|charge/i.test(s))return"var(--trial)";
+  if(/policy|struck/i.test(s))return"var(--policy)";
+  return"var(--closed)";
+}
+function fmtAmt(n,note){
+  if(n===null||n===undefined||n===""||isNaN(n))return note?'<span class="amt">—<span class="q">'+esc(note)+'</span></span>':'<span class="amt">—</span>';
+  let v=Number(n),disp;
+  if(v>=100000)disp="₹"+(v/100000).toLocaleString("en-IN",{maximumFractionDigits:2})+" lakh cr";
+  else disp="₹"+v.toLocaleString("en-IN")+" cr";
+  return '<span class="amt">'+disp+(note?'<span class="q">'+esc(note)+'</span>':'')+'</span>';
+}
+function esc(s){return(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function firstYear(y){const m=String(y).match(/\d{4}/);return m?+m[0]:0;}
+
+/* ---------- Storage (window.storage with in-memory fallback) ---------- */
+async function load(){
+  try{
+    const r=await window.storage.get(KEY);
+    if(r&&r.value){DATA=JSON.parse(r.value);return;}
+  }catch(e){/* not set yet or unavailable */}
+  DATA=SEED.slice();
+  await save();
+}
+async function save(){
+  try{await window.storage.set(KEY,JSON.stringify(DATA));}catch(e){console.warn("Persist unavailable — export to keep a backup.");}
+}
+async function resetSeed(){
+  if(!confirm("Restore the built-in starter dataset? This replaces your current list (export first if you want a backup)."))return;
+  DATA=SEED.slice();await save();buildFilters();render();
+}
+
+/* ---------- Render ---------- */
+function buildFilters(){
+  const levels=[...new Set(DATA.map(d=>d.level))].sort();
+  const parties=[...new Set(DATA.map(d=>d.party).filter(Boolean))].sort();
+  const statuses=[...new Set(DATA.map(d=>d.status).filter(Boolean))].sort();
+  fill("fLevel",levels);fill("fParty",parties);fill("fStatus",statuses);
+  document.getElementById("levelList").innerHTML=levels.map(l=>`<option value="${esc(l)}">`).join("");
+}
+function fill(id,arr){
+  const el=document.getElementById(id);const cur=el.value;
+  el.innerHTML=el.children[0].outerHTML+arr.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join("");
+  el.value=cur;
+}
+function render(){
+  const q=document.getElementById("q").value.toLowerCase();
+  const fl=document.getElementById("fLevel").value,fp=document.getElementById("fParty").value,fs=document.getElementById("fStatus").value,sort=document.getElementById("fSort").value;
+  let rows=DATA.filter(d=>{
+    if(fl&&d.level!==fl)return false;
+    if(fp&&d.party!==fp)return false;
+    if(fs&&d.status!==fs)return false;
+    if(q){const blob=(d.name+" "+d.desc+" "+(d.people||"")+" "+d.party+" "+d.level).toLowerCase();if(!blob.includes(q))return false;}
+    return true;
+  });
+  rows.sort((a,b)=>{
+    if(sort==="year-desc")return firstYear(b.year)-firstYear(a.year);
+    if(sort==="year-asc")return firstYear(a.year)-firstYear(b.year);
+    if(sort==="amt-desc")return(b.amount||0)-(a.amount||0);
+    if(sort==="amt-asc")return(a.amount||0)-(b.amount||0);
+    if(sort==="az")return a.name.localeCompare(b.name);
+    return 0;
+  });
+  document.getElementById("count").textContent=rows.length+" of "+DATA.length+" entries shown";
+  const L=document.getElementById("list");
+  if(!rows.length){L.innerHTML='<div class="empty">No entries match. Adjust filters or add a new one.</div>';return;}
+  L.innerHTML=rows.map(d=>{
+    const idx=DATA.indexOf(d);
+    return `<div class="card" onclick="toggle(this,event)">
+      <div class="yr">${esc(String(d.year).match(/\d{4}/)?String(d.year).match(/\d{4}/)[0]:"—")}<small>${esc(String(d.year))}</small></div>
+      <div class="cmain">
+        <h3>${esc(d.name)}</h3>
+        <div class="tags">
+          <span class="tag level">${esc(d.level)}</span>
+          ${d.party?`<span class="tag party" style="background:${partyColor(d.party)}">${esc(d.party)}</span>`:""}
+        </div>
+        <div class="desc">${esc(d.desc)}</div>
+        <div class="detail">
+          ${d.people?`<div class="row"><span class="k">People</span><span class="v">${esc(d.people)}</span></div>`:""}
+          ${d.amtNote?`<div class="row"><span class="k">Amount note</span><span class="v">${esc(d.amtNote)}</span></div>`:""}
+          <div class="row"><span class="k">Status</span><span class="v">${esc(d.status)}</span></div>
+          <div class="row"><span class="k">Sources</span><span class="v">${d.src?linkify(d.src):'<em style="color:var(--faint)">none added — verify &amp; add a source</em>'}</span></div>
+        </div>
+      </div>
+      <div class="cright">
+        ${fmtAmt(d.amount,d.amtNote)}
+        <span class="status" style="background:${statusColor(d.status)};color:#0c0a08">${esc(d.status)}</span>
+        <div class="editbtns"><button onclick="editEntry(${idx},event)">edit</button><button onclick="delEntry(${idx},event)">del</button></div>
+      </div>
+    </div>`;
+  }).join("");
+  renderStats();
+}
+function linkify(s){return esc(s).replace(/(https?:\/\/[^\s]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>').replace(/\n/g,"<br>");}
+function toggle(card,e){if(e.target.closest(".editbtns")||e.target.tagName==="A")return;card.classList.toggle("open");}
+
+function renderStats(){
+  const nat=DATA.filter(d=>/national/i.test(d.level)).length;
+  const st=DATA.length-nat;
+  const withConv=DATA.filter(d=>/convict/i.test(d.status)).length;
+  const pending=DATA.filter(d=>/trial|investig|charge/i.test(d.status)).length;
+  document.getElementById("stats").innerHTML=`
+    <div class="stat"><div class="n red">${DATA.length}</div><div class="l">Total entries</div></div>
+    <div class="stat"><div class="n">${nat}</div><div class="l">National</div></div>
+    <div class="stat"><div class="n">${st}</div><div class="l">State-level</div></div>
+    <div class="stat"><div class="n">${pending}</div><div class="l">Under trial / probe</div></div>
+    <div class="stat"><div class="n">${withConv}</div><div class="l">Resulted in conviction</div></div>`;
+}
+
+/* ---------- CRUD ---------- */
+function openModal(){document.getElementById("mTitle").textContent="Add entry";["mId","mName","mLevel","mYear","mParty","mAmt","mAmtNote","mPeople","mDesc","mSrc"].forEach(i=>document.getElementById(i).value="");document.getElementById("mStatus").value="Alleged / surfaced";document.getElementById("overlay").classList.add("show");}
+function closeModal(){document.getElementById("overlay").classList.remove("show");}
+function editEntry(i,e){e.stopPropagation();const d=DATA[i];document.getElementById("mTitle").textContent="Edit entry";document.getElementById("mId").value=i;document.getElementById("mName").value=d.name;document.getElementById("mLevel").value=d.level;document.getElementById("mYear").value=d.year;document.getElementById("mParty").value=d.party||"";document.getElementById("mStatus").value=d.status;document.getElementById("mAmt").value=d.amount??"";document.getElementById("mAmtNote").value=d.amtNote||"";document.getElementById("mPeople").value=d.people||"";document.getElementById("mDesc").value=d.desc||"";document.getElementById("mSrc").value=d.src||"";document.getElementById("overlay").classList.add("show");}
+function delEntry(i,e){e.stopPropagation();if(!confirm("Delete \""+DATA[i].name+"\"?"))return;DATA.splice(i,1);save();buildFilters();render();}
+async function saveEntry(){
+  const name=document.getElementById("mName").value.trim();
+  const level=document.getElementById("mLevel").value.trim();
+  const year=document.getElementById("mYear").value.trim();
+  if(!name||!level||!year){alert("Name, Level and Year are required.");return;}
+  const obj={name,level,year,party:document.getElementById("mParty").value.trim(),
+    status:document.getElementById("mStatus").value,
+    amount:document.getElementById("mAmt").value===""?null:Number(document.getElementById("mAmt").value),
+    amtNote:document.getElementById("mAmtNote").value.trim(),
+    people:document.getElementById("mPeople").value.trim(),
+    desc:document.getElementById("mDesc").value.trim(),
+    src:document.getElementById("mSrc").value.trim()};
+  const id=document.getElementById("mId").value;
+  if(id===""){DATA.push(obj);}else{DATA[+id]=obj;}
+  await save();buildFilters();render();closeModal();
+}
+
+/* ---------- Export / Import ---------- */
+function exportJSON(){dl(JSON.stringify(DATA,null,2),"india-scams-ledger.json","application/json");}
+function exportCSV(){
+  const cols=["name","level","year","party","status","amount","amtNote","people","desc","src"];
+  const csv=[cols.join(",")].concat(DATA.map(d=>cols.map(c=>{let v=d[c]==null?"":String(d[c]);return'"'+v.replace(/"/g,'""')+'"';}).join(","))).join("\n");
+  dl(csv,"india-scams-ledger.csv","text/csv");
+}
+function dl(content,fn,type){const b=new Blob([content],{type});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=fn;a.click();URL.revokeObjectURL(a.href);}
+function importJSON(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const arr=JSON.parse(r.result);if(!Array.isArray(arr))throw 0;if(confirm("Import "+arr.length+" entries? Choose OK to ADD to current list, Cancel to abort.")){DATA=DATA.concat(arr);save();buildFilters();render();}}catch(err){alert("Invalid JSON file.");}};r.readAsText(f);e.target.value="";}
+
+document.getElementById("overlay").addEventListener("click",e=>{if(e.target.id==="overlay")closeModal();});
+
+/* ============================================================
+   SEED DATA — major cross-party cases, 1996→present.
+   amount = ₹ crore (headline/alleged figure where one exists).
+   ALL amounts are alleged/estimated; check `status`. Sources left
+   blank deliberately — add verified links as you research.
+   ============================================================ */
+const SEED=[
+/* ---------------- NATIONAL ---------------- */
+{name:"Fodder (Chara) scam",level:"National",year:"surfaced 1996",party:"RJD/Janata Dal",status:"Convicted",amount:950,amtNote:"approx. funds embezzled",people:"Lalu Prasad Yadav, Jagannath Mishra",desc:"Fraudulent withdrawal of funds from Bihar's animal husbandry dept for fictitious livestock fodder. Multiple convictions across cases.",src:""},
+{name:"Hawala / Jain diaries case",level:"National",year:"1996",party:"Multiple / various",status:"Acquitted / no charges",amount:null,amtNote:"alleged hawala payouts",people:"L.K. Advani & many cross-party politicians",desc:"Diaries of the Jain brothers allegedly recorded payments to numerous politicians. Most accused were discharged for lack of corroborating evidence.",src:""},
+{name:"Telgi stamp paper scam",level:"National",year:"surfaced 2003",party:"Multiple / various",status:"Convicted",amount:20000,amtNote:"widely-cited estimate; disputed",people:"Abdul Karim Telgi",desc:"Counterfeit stamp paper racket spanning multiple states with alleged official complicity. Telgi convicted.",src:""},
+{name:"Cash-for-votes scandal",level:"National",year:"2008",party:"Congress (UPA)",status:"Closed",amount:null,amtNote:"alleged bribes to MPs",people:"—",desc:"Allegations that MPs were bribed to back the UPA in a confidence vote over the India–US nuclear deal. Probe inconclusive.",src:""},
+{name:"Satyam accounting fraud",level:"National",year:"2009",party:"Corporate",status:"Convicted",amount:7000,amtNote:"inflated/falsified accounts (est.)",people:"B. Ramalinga Raju",desc:"Chairman admitted to years of falsified accounts at Satyam Computer Services — among India's largest corporate frauds. Raju convicted in 2015.",src:""},
+{name:"2G spectrum allocation",level:"National",year:"2008 (surfaced 2010)",party:"Congress (UPA)",status:"Acquitted / no charges",amount:176000,amtNote:"CAG presumptive loss; court found no proof",people:"A. Raja, Kanimozhi",desc:"Alleged underpricing of 2G telecom licences. The CAG estimated a presumptive loss; in Dec 2017 a special court acquitted all accused. CBI/ED appeals pending.",src:""},
+{name:"Commonwealth Games scam",level:"National",year:"2010",party:"Congress (UPA)",status:"Under trial",amount:null,amtNote:"alleged cost inflation / irregularities",people:"Suresh Kalmadi",desc:"Alleged corruption and cost-inflation in contracts for the 2010 Delhi CWG. Several arrests; protracted proceedings.",src:""},
+{name:"Adarsh Housing Society",level:"National",year:"2010",party:"Congress / NCP",status:"Under investigation",amount:null,amtNote:"misallocation of flats",people:"Ashok Chavan (CM resigned)",desc:"A Mumbai society meant for war widows/veterans allegedly allotted flats to politicians, bureaucrats and military officers. CM Ashok Chavan resigned.",src:""},
+{name:"Coal block allocation (Coalgate)",level:"National",year:"surfaced 2012",party:"Congress (UPA)",status:"Convicted",amount:186000,amtNote:"CAG presumptive loss",people:"various; ex-Coal Secy convicted",desc:"Alleged arbitrary, non-auction allocation of coal blocks. CAG estimated a large presumptive loss; SC cancelled most allocations; some convictions followed.",src:""},
+{name:"AgustaWestland VVIP chopper deal",level:"National",year:"surfaced 2013",party:"Congress (UPA)",status:"Under trial",amount:3600,amtNote:"deal value; alleged bribes ~₹360 cr",people:"Christian Michel & others",desc:"Alleged kickbacks in a ₹3,600-cr deal for VVIP helicopters. Middleman extradited to India in 2018; case ongoing.",src:""},
+{name:"National Herald case",level:"National",year:"2012 (ED case ongoing)",party:"Congress",status:"Under trial",amount:null,amtNote:"alleged asset misappropriation",people:"Sonia Gandhi, Rahul Gandhi",desc:"ED alleges misappropriation of assets via the Young Indian takeover of Associated Journals. The Congress calls it political vendetta. Litigation continues.",src:""},
+{name:"Vijay Mallya / Kingfisher loan default",level:"National",year:"2012 (fugitive 2016)",party:"Corporate",status:"Under trial",amount:9000,amtNote:"alleged loan default/diversion",people:"Vijay Mallya",desc:"Default on bank loans to Kingfisher Airlines and alleged fund diversion. Declared a fugitive economic offender; extradition contested in the UK.",src:""},
+{name:"NSEL payment crisis",level:"National",year:"2013",party:"Corporate",status:"Under trial",amount:5600,amtNote:"investor dues outstanding",people:"Jignesh Shah & others",desc:"Settlement defaults on the National Spot Exchange left thousands of investors with large unpaid dues. Multiple investigations.",src:""},
+{name:"Rafale deal controversy",level:"National",year:"2016",party:"BJP (NDA)",status:"Acquitted / no charges",amount:null,amtNote:"opposition alleged pricing/offset issues",people:"—",desc:"Opposition alleged irregularities in pricing and offset partner selection for the fighter-jet purchase. The Supreme Court declined to order a probe (2018–19); no charges filed.",src:""},
+{name:"PNB / Nirav Modi–Choksi fraud",level:"National",year:"2018",party:"BJP (NDA)",status:"Under trial",amount:13500,amtNote:"alleged LoU bank fraud",people:"Nirav Modi, Mehul Choksi",desc:"Alleged fraudulent letters of undertaking at Punjab National Bank. Both accused fled India; extradition proceedings ongoing.",src:""},
+{name:"Electoral bonds scheme",level:"National",year:"2017–2024",party:"BJP (NDA)",status:"Policy / scheme struck down",amount:null,amtNote:"anonymous corporate donations",people:"—",desc:"An anonymous political-donation instrument introduced in 2017. The Supreme Court unanimously struck it down as unconstitutional in Feb 2024 for violating voters' right to information.",src:""},
+{name:"Demonetisation",level:"National",year:"2016",party:"BJP (NDA)",status:"Policy / scheme struck down",amount:null,amtNote:"~99.3% of notes returned (RBI)",people:"—",desc:"Overnight invalidation of ₹500/₹1,000 notes. RBI later reported ~99.3% returned, undercutting the black-money rationale; widely debated economic costs. (SC upheld legality 2023.)",src:""},
+{name:"Pegasus spyware allegations",level:"National",year:"2021",party:"BJP (NDA)",status:"Under investigation",amount:null,amtNote:"alleged surveillance",people:"—",desc:"Allegations that govt-grade spyware was used to target journalists, activists and opposition figures. The govt neither confirmed nor denied; an SC-appointed panel's findings were inconclusive on govt use.",src:""},
+
+/* ---------------- STATE-LEVEL (samples across parties) ---------------- */
+{name:"Vyapam admission/recruitment scam",level:"Madhya Pradesh",year:"surfaced 2013",party:"BJP",status:"Convicted",amount:null,amtNote:"recruitment/exam fraud",people:"various officials, middlemen",desc:"Mass rigging of state entrance and recruitment exams. Notable for a string of unexplained deaths of accused and witnesses; many convictions via CBI.",src:""},
+{name:"Saradha chit fund scam",level:"West Bengal",year:"2013",party:"TMC",status:"Under trial",amount:2500,amtNote:"alleged investor losses (est.)",people:"Sudipta Sen; several politicians questioned",desc:"Collapse of a large Ponzi-style deposit scheme that defrauded small investors. Multiple TMC figures investigated; cases ongoing.",src:""},
+{name:"Rose Valley chit fund scam",level:"West Bengal",year:"surfaced 2013",party:"TMC",status:"Under trial",amount:17000,amtNote:"alleged collections (est.)",people:"Gautam Kundu & others",desc:"One of India's largest alleged Ponzi schemes by collection size. Investigations and arrests ongoing.",src:""},
+{name:"Narada sting case",level:"West Bengal",year:"2016",party:"TMC",status:"Under trial",amount:null,amtNote:"alleged bribes on camera",people:"several TMC leaders/MPs",desc:"A sting operation appeared to show party figures accepting cash. Cases against multiple leaders continue.",src:""},
+{name:"Illegal mining scam",level:"Karnataka",year:"2011",party:"BJP",status:"Under investigation",amount:null,amtNote:"Lokayukta-estimated losses",people:"Janardhana Reddy; CM Yeddyurappa resigned",desc:"Lokayukta report on rampant illegal iron-ore mining triggered the CM's resignation and multiple cases.",src:""},
+{name:"Disproportionate assets case",level:"Tamil Nadu",year:"surfaced 1996",party:"AIADMK",status:"Convicted",amount:66,amtNote:"assets beyond known income (est.)",people:"J. Jayalalithaa, V.K. Sasikala",desc:"Assets allegedly disproportionate to known income. Convicted 2014, acquitted by HC 2015; SC restored conviction 2017 (abated against Jayalalithaa, deceased); Sasikala jailed.",src:""},
+{name:"Irrigation scam",level:"Maharashtra",year:"surfaced 2012",party:"NCP",status:"Under investigation",amount:70000,amtNote:"alleged cost escalation (est.)",people:"Ajit Pawar (then Dy CM)",desc:"Alleged irregularities and cost escalation in irrigation projects over a decade. Multiple probes.",src:""},
+{name:"NRHM scam",level:"Uttar Pradesh",year:"surfaced 2011",party:"BSP",status:"Convicted",amount:null,amtNote:"health-mission funds (est.)",people:"officials; ex-ministers",desc:"Large-scale embezzlement of National Rural Health Mission funds, marked by several suspicious deaths of officials. CBI probe; convictions.",src:""},
+{name:"Solar panel scam",level:"Kerala",year:"2013",party:"UDF / Congress",status:"Closed",amount:null,amtNote:"alleged cheating/influence",people:"Saritha Nair; CM Oommen Chandy named",desc:"A solar-energy company allegedly cheated investors while claiming political access. Judicial commission inquiry; CM faced allegations but no conviction.",src:""},
+{name:"Madhu Koda mining scam",level:"Jharkhand",year:"surfaced 2009",party:"Independent/JMM-backed",status:"Convicted",amount:4000,amtNote:"alleged proceeds (est.)",people:"Madhu Koda (ex-CM)",desc:"Former CM accused of amassing wealth via mining leases and money-laundering. Convicted in a coal-block case (2017).",src:""},
+{name:"Land-for-jobs / land scam",level:"Jharkhand",year:"2024",party:"JMM",status:"Under trial",amount:null,amtNote:"alleged land grab",people:"Hemant Soren (CM)",desc:"ED case alleging illegal acquisition of land; CM arrested in Jan 2024, later granted bail and returned to office. Case ongoing; called political by JMM.",src:""},
+{name:"Delhi excise / liquor policy scam",level:"Delhi",year:"2021–2022",party:"AAP",status:"Under trial",amount:null,amtNote:"alleged kickbacks in liquor policy",people:"M. Sisodia, Arvind Kejriwal",desc:"CBI/ED allege irregularities and kickbacks in the now-withdrawn excise policy. Key leaders arrested then granted bail; AAP calls it politically motivated. Trial ongoing.",src:""},
+{name:"Coal levy scam",level:"Chhattisgarh",year:"surfaced 2022",party:"Congress",status:"Under investigation",amount:null,amtNote:"alleged illegal levy on coal transport",people:"officials & associates",desc:"ED alleges an extortion-style levy on coal transport benefiting a syndicate. Multiple arrests; investigation ongoing.",src:""}
+];
+
+(async()=>{await load();buildFilters();render();})();
+</script>
+</body>
+</html>
