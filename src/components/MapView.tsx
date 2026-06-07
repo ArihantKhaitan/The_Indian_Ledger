@@ -5,61 +5,86 @@ import { useStore } from '../store';
 import { partyColor } from '../lib/colors';
 import { firstYear } from '../lib/utils';
 
+// GeoJSON fetch priority — drop a post-2019 file at /public/india-states.geojson
+// to get correct J&K / Ladakh bifurcation boundaries
+const GEO_LOCAL = '/india-states.geojson';
 const GEO_URL =
   'https://raw.githubusercontent.com/geohacker/india/master/state/india_state.geojson';
 const GEO_FALLBACK =
   'https://raw.githubusercontent.com/Subhash9325/GeoJson-Data-of-Indian-States/master/Indian_States';
 
-const NAME_TO_CODE: Record<string, string> = {
-  'Andhra Pradesh': 'AP',
-  'Arunachal Pradesh': 'AR',
-  'Assam': 'AS',
-  'Bihar': 'BR',
-  'Chhattisgarh': 'CG',
-  'Goa': 'GA',
-  'Gujarat': 'GJ',
-  'Haryana': 'HR',
-  'Himachal Pradesh': 'HP',
-  'Jharkhand': 'JH',
-  'Karnataka': 'KA',
-  'Kerala': 'KL',
-  'Madhya Pradesh': 'MP',
-  'Maharashtra': 'MH',
-  'Manipur': 'MN',
-  'Meghalaya': 'ML',
-  'Mizoram': 'MZ',
-  'Nagaland': 'NL',
-  'Odisha': 'OD',
-  'Orissa': 'OD',
-  'Punjab': 'PB',
-  'Rajasthan': 'RJ',
-  'Sikkim': 'SK',
-  'Tamil Nadu': 'TN',
-  'Telangana': 'TS',
-  'Tripura': 'TR',
-  'Uttar Pradesh': 'UP',
-  'Uttarakhand': 'UK',
-  'Uttaranchal': 'UK',
-  'West Bengal': 'WB',
-  'Jammu and Kashmir': 'JK',
-  'Jammu & Kashmir': 'JK',
-  'Ladakh': 'LA',
-  'Delhi': 'DL',
-  'NCT of Delhi': 'DL',
-  'Dadra and Nagar Haveli and Daman and Diu': 'DN',
-  'Lakshadweep': 'LD',
-  'Puducherry': 'PY',
-  'Andaman and Nicobar Islands': 'AN',
-  'Chandigarh': 'CH',
+// Fixed SVG canvas — matches Rajneeti exactly; CSS scales it to fill container
+const W = 620;
+const H = 740;
+
+// Normalize a string to lowercase letters only for fuzzy matching
+const norm = (s: string) => s.toLowerCase().replace(/[^a-z]/g, '');
+
+// Authoritative GeoJSON name variants → state codes (ported from Rajneeti IndiaMap.tsx)
+const ALIASES: Record<string, string> = {
+  andhrapradesh: 'AP',
+  arunachalpradesh: 'AR',
+  assam: 'AS',
+  bihar: 'BR',
+  chhattisgarh: 'CG',
+  goa: 'GA',
+  gujarat: 'GJ',
+  haryana: 'HR',
+  himachalpradesh: 'HP',
+  jharkhand: 'JH',
+  karnataka: 'KA',
+  kerala: 'KL',
+  madhyapradesh: 'MP',
+  maharashtra: 'MH',
+  manipur: 'MN',
+  meghalaya: 'ML',
+  mizoram: 'MZ',
+  nagaland: 'NL',
+  odisha: 'OD',
+  orissa: 'OD',
+  punjab: 'PB',
+  rajasthan: 'RJ',
+  sikkim: 'SK',
+  tamilnadu: 'TN',
+  telangana: 'TG',
+  tripura: 'TR',
+  uttarpradesh: 'UP',
+  uttarakhand: 'UT',
+  uttaranchal: 'UT',
+  westbengal: 'WB',
+  jammuandkashmir: 'JK',
+  jammukashmir: 'JK',
+  jammu: 'JK',
+  kashmir: 'JK',
+  ladakh: 'LA',
+  delhi: 'DL',
+  nctofdelhi: 'DL',
+  chandigarh: 'CH',
+  puducherry: 'PY',
+  pondicherry: 'PY',
+  andamanandnicobarislands: 'AN',
+  andamannicobar: 'AN',
+  lakshadweep: 'LD',
+  dadraandnagarhaveli: 'DN',
+  damananddiu: 'DN',
+  dadraandnagarhavelianddamananddiu: 'DN',
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function getStateName(props: Record<string, any>): string {
-  return props.ST_NM || props.NAME_1 || props.State || props.state || props.name || '';
+function codeFromProps(props: Record<string, any>): string | undefined {
+  const raw = props.ST_NM ?? props.STATE ?? props.NAME_1 ?? props.state ?? props.name ?? '';
+  return ALIASES[norm(raw)];
 }
 
-// Small/island UTs that need larger click targets
-const SMALL_UTS = new Set(['LD', 'AN', 'DN', 'PY', 'CH']);
+// States to render abbreviation labels for (excludes tiny island UTs)
+const LABEL_STATES = new Set([
+  'AP', 'AR', 'AS', 'BR', 'CG', 'GA', 'GJ', 'HR', 'HP', 'JH', 'KA', 'KL',
+  'MP', 'MH', 'MN', 'ML', 'MZ', 'NL', 'OD', 'PB', 'RJ', 'SK', 'TN', 'TG',
+  'TR', 'UP', 'UT', 'WB', 'DL', 'JK', 'LA', 'CH', 'PY',
+]);
+
+// Big states get larger font
+const BIG_STATES = new Set(['UP', 'RJ', 'MP', 'MH', 'GJ', 'WB']);
 
 interface TooltipState {
   x: number;
@@ -70,12 +95,10 @@ interface TooltipState {
 }
 
 export function MapView() {
-  const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [features, setFeatures] = useState<any[]>([]);
   const [geoError, setGeoError] = useState(false);
-  const [dims, setDims] = useState({ width: 800, height: 600 });
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
@@ -93,60 +116,49 @@ export function MapView() {
 
   const scamsByState = useMemo(() => {
     const counts: Record<string, number> = {};
-    mappedEntries.forEach((e) => {
+    data.forEach((e) => {
       if (e.stateCode && e.stateCode !== 'NATIONAL') {
+        const yr = firstYear(e.year);
+        if (timelineMode === 'exact' && yr !== timelineYear) return;
+        if (timelineMode === 'upto' && yr > timelineYear) return;
         counts[e.stateCode] = (counts[e.stateCode] || 0) + 1;
       }
     });
     return counts;
-  }, [mappedEntries]);
+  }, [data, timelineYear, timelineMode]);
 
+  // Fetch GeoJSON — try local file first (post-2019 J&K), then remote fallbacks
   useEffect(() => {
     let cancelled = false;
-    async function load() {
-      const urls = [GEO_URL, GEO_FALLBACK];
-      for (const url of urls) {
-        try {
-          const res = await fetch(url);
-          if (!res.ok) continue;
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const json: any = await res.json();
-          if (cancelled) return;
-          const feats = json.features ?? (Array.isArray(json) ? json : null);
-          if (feats && feats.length > 0) {
-            setFeatures(feats);
-            return;
-          }
-        } catch { /* try next */ }
-      }
-      if (!cancelled) setGeoError(true);
-    }
-    load();
+    const load = (url: string) =>
+      fetch(url).then((r) => {
+        if (!r.ok) throw new Error('not ok');
+        return r.json();
+      });
+
+    load(GEO_LOCAL)
+      .catch(() => load(GEO_URL))
+      .catch(() => load(GEO_FALLBACK))
+      .then((json) => {
+        if (cancelled) return;
+        const feats = json.features ?? (Array.isArray(json) ? json : null);
+        if (feats?.length > 0) setFeatures(feats);
+        else setGeoError(true);
+      })
+      .catch(() => { if (!cancelled) setGeoError(true); });
+
     return () => { cancelled = true; };
   }, []);
 
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    const measure = () => {
-      setDims({ width: el.clientWidth || 800, height: el.clientHeight || 600 });
-    };
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    measure();
-    return () => ro.disconnect();
-  }, []);
-
-  // Projection matching Rajneeti exactly
+  // Fixed projection — identical to Rajneeti: center 82.5°E/22°N, scale 920, shifted down 25px
   const { projection, pathFn } = useMemo(() => {
-    const scale = (dims.height / 700) * 920;
     const proj = d3
       .geoMercator()
       .center([82.5, 22])
-      .scale(scale)
-      .translate([dims.width / 2, dims.height * 0.54]);
+      .scale(920)
+      .translate([W / 2, H / 2 + 25]);
     return { projection: proj, pathFn: d3.geoPath().projection(proj) };
-  }, [dims]);
+  }, []);
 
   const project = useCallback(
     (lng: number, lat: number): [number, number] | null => {
@@ -156,11 +168,10 @@ export function MapView() {
     [projection]
   );
 
-  // Precompute centroids and paths for all features
+  // Precompute SVG paths + per-feature centroids
   const featureData = useMemo(() => {
     return features.map((feat) => {
-      const name = getStateName(feat.properties || {});
-      const code = NAME_TO_CODE[name];
+      const code = codeFromProps(feat.properties || {});
       let pathD = '';
       let centroid: [number, number] | null = null;
       try {
@@ -169,17 +180,33 @@ export function MapView() {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const c = pathFn.centroid(feat as any);
         if (c && !isNaN(c[0]) && !isNaN(c[1])) centroid = c as [number, number];
-      } catch { /* skip */ }
-      return { feat, name, code, pathD, centroid };
+      } catch { /* skip degenerate features */ }
+      return { code, pathD, centroid };
     });
   }, [features, pathFn]);
 
-  function getStateFill(code: string | undefined, name: string): string {
+  // Average centroids across all features per state code (handles multi-polygon states correctly)
+  const stateCentroidMap = useMemo(() => {
+    const acc: Record<string, { sumX: number; sumY: number; count: number }> = {};
+    featureData.forEach(({ code, centroid }) => {
+      if (!code || !centroid) return;
+      if (!acc[code]) acc[code] = { sumX: 0, sumY: 0, count: 0 };
+      acc[code].sumX += centroid[0];
+      acc[code].sumY += centroid[1];
+      acc[code].count += 1;
+    });
+    const result: Record<string, [number, number]> = {};
+    for (const [code, { sumX, sumY, count }] of Object.entries(acc)) {
+      result[code] = [sumX / count, sumY / count];
+    }
+    return result;
+  }, [featureData]);
+
+  function getStateFill(code: string | undefined): string {
     if (!code) return '#1d1915';
     const count = scamsByState[code] || 0;
     if (count === 0) return '#1d1915';
     const t = Math.min(count / 4, 1);
-    // Subtle dark-red heat: more scams = more visible
     return d3.interpolateRgb('#232018', '#4a1f1a')(t);
   }
 
@@ -187,71 +214,54 @@ export function MapView() {
     const entry = data.find((d) => d.id === id);
     if (!entry) return;
     setHoveredId(id);
-    const rect = svgRef.current?.getBoundingClientRect();
-    if (!rect) return;
     setTooltip({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
+      x: e.clientX,
+      y: e.clientY,
       name: entry.name,
       year: entry.year,
       party: entry.party,
     });
   }
 
-  // Show label only if centroid is inside SVG bounds and state is big enough
-  function shouldShowLabel(code: string | undefined, pathD: string): boolean {
-    if (!code) return false;
-    // Always show mainland states; skip tiny ones
-    if (SMALL_UTS.has(code)) return false;
-    if (!pathD) return false;
-    return true;
-  }
-
   return (
-    <div
-      ref={containerRef}
-      className="relative w-full h-full select-none"
-      style={{ background: '#14110f' }}
-    >
+    <div className="relative w-full h-full select-none" style={{ background: '#14110f' }}>
       <svg
         ref={svgRef}
-        width={dims.width}
-        height={dims.height}
+        viewBox={`0 0 ${W} ${H}`}
+        className="w-full h-full"
         style={{ display: 'block' }}
       >
-        {/* State fills + borders */}
-        {featureData.map(({ name, code, pathD }, i) => {
-          const hasScams = !!code && (scamsByState[code] || 0) > 0;
-          return (
+        {/* State fills */}
+        {featureData.map(({ code, pathD }, i) =>
+          pathD ? (
             <path
               key={i}
               d={pathD}
-              fill={getStateFill(code, name)}
+              fill={getStateFill(code)}
               stroke="rgba(236,227,212,0.18)"
               strokeWidth={0.7}
               style={{
                 transition: 'fill 0.4s ease',
-                filter: hasScams ? 'brightness(1.3)' : undefined,
+                filter: code && scamsByState[code] ? 'brightness(1.3)' : undefined,
               }}
             />
-          );
-        })}
+          ) : null
+        )}
 
-        {/* State abbreviation labels — matching Rajneeti style */}
-        {featureData.map(({ code, centroid, pathD }, i) => {
-          if (!centroid || !shouldShowLabel(code, pathD)) return null;
-          const [cx, cy] = centroid;
-          // Skip if out of bounds
-          if (cx < 10 || cx > dims.width - 10 || cy < 10 || cy > dims.height - 10) return null;
-          const count = code ? (scamsByState[code] || 0) : 0;
+        {/* State abbreviation labels — one per state, placed at averaged centroid */}
+        {Object.entries(stateCentroidMap).map(([code, [cx, cy]]) => {
+          if (!LABEL_STATES.has(code)) return null;
+          if (cx < 10 || cx > W - 10 || cy < 10 || cy > H - 10) return null;
+          const count = scamsByState[code] || 0;
+          const big = BIG_STATES.has(code);
           return (
             <text
-              key={`lbl-${i}`}
+              key={`lbl-${code}`}
               x={cx}
               y={cy}
               textAnchor="middle"
               dominantBaseline="central"
-              fontSize={count > 0 ? 9 : 8}
+              fontSize={big ? 9.5 : count > 0 ? 9 : 8}
               fontFamily="'JetBrains Mono', monospace"
               fontWeight={count > 0 ? '600' : '400'}
               fill={count > 0 ? 'rgba(236,227,212,0.75)' : 'rgba(236,227,212,0.28)'}
@@ -262,7 +272,7 @@ export function MapView() {
           );
         })}
 
-        {/* Pins */}
+        {/* Scam pins */}
         <AnimatePresence>
           {mappedEntries.map((entry) => {
             const coords = project(entry.lng!, entry.lat!);
@@ -296,9 +306,10 @@ export function MapView() {
                   transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                   style={{
                     cursor: 'pointer',
-                    filter: isSelected || isHovered
-                      ? `drop-shadow(0 0 6px ${color})`
-                      : `drop-shadow(0 1px 2px rgba(0,0,0,0.6))`,
+                    filter:
+                      isSelected || isHovered
+                        ? `drop-shadow(0 0 6px ${color})`
+                        : `drop-shadow(0 1px 2px rgba(0,0,0,0.6))`,
                     transformOrigin: `${cx}px ${cy}px`,
                   }}
                   onClick={() => setSelectedId(isSelected ? null : entry.id)}
@@ -311,7 +322,7 @@ export function MapView() {
         </AnimatePresence>
       </svg>
 
-      {/* Tooltip */}
+      {/* Pin tooltip — fixed to viewport so it doesn't get clipped by SVG viewBox */}
       <AnimatePresence>
         {tooltip && (
           <motion.div
@@ -320,10 +331,10 @@ export function MapView() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.1 }}
-            className="absolute pointer-events-none z-10"
+            className="fixed pointer-events-none z-50"
             style={{
-              left: Math.min(tooltip.x + 14, dims.width - 230),
-              top: Math.max(tooltip.y - 50, 8),
+              left: tooltip.x + 14,
+              top: tooltip.y - 50,
               background: '#1d1915',
               border: '1px solid rgba(236,227,212,0.18)',
               borderRadius: '4px',
@@ -371,13 +382,16 @@ export function MapView() {
           { label: 'Regional / other', color: '#b0a48f' },
         ].map(({ label, color }) => (
           <div key={label} className="flex items-center gap-1.5">
-            <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: color }} />
+            <div
+              className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+              style={{ background: color }}
+            />
             <span className="font-mono text-[9px] text-faint">{label}</span>
           </div>
         ))}
       </div>
 
-      {/* Case count */}
+      {/* Case count badge */}
       <div className="absolute top-3 right-3 font-mono text-[9px] tracking-[1px] text-faint uppercase">
         {mappedEntries.length} state-level {mappedEntries.length !== 1 ? 'cases' : 'case'} shown
       </div>
