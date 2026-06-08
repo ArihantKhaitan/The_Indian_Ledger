@@ -16,7 +16,12 @@ export function FilterBar() {
 
   return (
     <div
-      className="flex flex-wrap gap-2 items-center py-4 sticky top-[60px] z-20 bg-bg"
+      className="flex flex-wrap gap-2 items-center py-4 sticky top-[60px] z-20"
+      style={{
+        backgroundColor: '#14110f',
+        backgroundImage: 'radial-gradient(circle at 20% -10%, rgba(192,57,43,0.07), transparent 45%), radial-gradient(circle at 85% 5%, rgba(212,100,47,0.05), transparent 40%)',
+        backgroundAttachment: 'fixed',
+      }}
     >
       {/* Search */}
       <div className="relative flex-1 min-w-[200px]">

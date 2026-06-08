@@ -46,39 +46,24 @@ export default function App() {
           )}
 
           {activeView === 'map' && (
-            <motion.div
-              key="map"
-              {...PAGE_TRANSITION}
-              className="flex flex-col"
-              style={{ height: 'calc(100vh - 60px)' }}
-            >
-              {/* Map — fills all available space above the bottom bar */}
-              <div className="flex-1 min-h-0 overflow-hidden">
+            <motion.div key="map" {...PAGE_TRANSITION}>
+              {/* Map — full viewport height, fills the screen */}
+              <div style={{ height: 'calc(100vh - 60px)' }}>
                 <MapView />
               </div>
 
-              {/* Bottom bar: compact timeline + horizontal national cases */}
-              <div
-                className="flex shrink-0"
-                style={{
-                  height: '96px',
-                  borderTop: '1px solid rgba(236,227,212,0.07)',
-                  background: '#14110f',
-                }}
-              >
-                <TimelineSlider />
-                <NationalTray />
-              </div>
+              {/* Scroll down: full-width timeline */}
+              <TimelineSlider />
+
+              {/* Scroll down: national cases list */}
+              <NationalTray />
             </motion.div>
           )}
 
           {activeView === 'ledger' && (
-            <motion.div key="ledger" {...PAGE_TRANSITION} className="pb-20">
-              {/* FilterBar spans full viewport width so no box edge is visible */}
-              <div className="px-5 pt-4">
+            <motion.div key="ledger" {...PAGE_TRANSITION} className="max-w-screen-xl mx-auto px-5 pb-20">
+              <div className="pt-4">
                 <FilterBar />
-              </div>
-              <div className="max-w-screen-xl mx-auto px-5">
                 <LedgerList />
               </div>
             </motion.div>
@@ -92,12 +77,9 @@ export default function App() {
         </AnimatePresence>
       </div>
 
-      {/* Views that show below the main content (only for non-map views) */}
-      {activeView !== 'map' && (
-        <div className="max-w-screen-xl mx-auto px-5">
-          <Footer />
-        </div>
-      )}
+      <div className="max-w-screen-xl mx-auto px-5">
+        <Footer />
+      </div>
 
       {/* Global overlay */}
       <DetailDrawer />
