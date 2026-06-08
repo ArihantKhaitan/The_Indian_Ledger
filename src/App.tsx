@@ -47,7 +47,7 @@ export default function App() {
 
           {activeView === 'map' && (
             <motion.div key="map" {...PAGE_TRANSITION}>
-              {/* Map — full viewport height, fills the screen */}
+              {/* Map — full viewport height minus navbar */}
               <div style={{ height: 'calc(100vh - 60px)' }}>
                 <MapView />
               </div>

@@ -391,11 +391,6 @@ export function MapView() {
         ))}
       </div>
 
-      {/* Case count badge */}
-      <div className="absolute top-3 right-3 font-mono text-[9px] tracking-[1px] text-faint uppercase">
-        {mappedEntries.length} state-level {mappedEntries.length !== 1 ? 'cases' : 'case'} shown
-      </div>
-
       {geoError && features.length === 0 && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <p className="font-mono text-[11px] text-faint text-center">
